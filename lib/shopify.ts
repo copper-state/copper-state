@@ -28,6 +28,7 @@ export interface ShopifyProduct {
     id: string;
     title: string;
     price: string;
+    compareAtPrice?: string;
     availableForSale: boolean;
   }[];
 }
@@ -227,26 +228,38 @@ export async function getProducts(first: number = 20): Promise<ShopifyProduct[]>
       variables: { first },
     });
 
-    return data.products.edges.map(({ node }) => ({
-      id: node.id,
-      title: node.title,
-      description: node.description,
-      handle: node.handle,
-      images: node.images.edges.map(({ node: img }) => ({
-        id: img.id,
-        url: img.url,
-        altText: img.altText,
-      })),
-      variants: node.variants.edges.map(({ node: variant }) => ({
-        id: variant.id,
-        title: variant.title,
-        price: `${variant.price.currencyCode} ${variant.price.amount}`,
-        compareAtPrice: variant.compareAtPrice
-          ? `${variant.compareAtPrice.currencyCode} ${variant.compareAtPrice.amount}`
-          : undefined,
-        availableForSale: variant.availableForSale,
-      })),
-    }));
+    return data.products.edges.map(({ node }) => {
+      const firstVariant = node.variants.edges[0]?.node;
+      const price = firstVariant
+        ? `${firstVariant.price.currencyCode} ${firstVariant.price.amount}`
+        : 'N/A';
+      const compareAtPrice = firstVariant?.compareAtPrice
+        ? `${firstVariant.compareAtPrice.currencyCode} ${firstVariant.compareAtPrice.amount}`
+        : undefined;
+
+      return {
+        id: node.id,
+        title: node.title,
+        description: node.description,
+        handle: node.handle,
+        price,
+        compareAtPrice,
+        images: node.images.edges.map(({ node: img }) => ({
+          id: img.id,
+          url: img.url,
+          altText: img.altText,
+        })),
+        variants: node.variants.edges.map(({ node: variant }) => ({
+          id: variant.id,
+          title: variant.title,
+          price: `${variant.price.currencyCode} ${variant.price.amount}`,
+          compareAtPrice: variant.compareAtPrice
+            ? `${variant.compareAtPrice.currencyCode} ${variant.compareAtPrice.amount}`
+            : undefined,
+          availableForSale: variant.availableForSale,
+        })),
+      };
+    });
   } catch (error) {
     console.error('Error fetching products:', error);
     return [];
@@ -298,11 +311,21 @@ export async function getProductByHandle(handle: string): Promise<ShopifyProduct
     }
 
     const node = data.productByHandle;
+    const firstVariant = node.variants.edges[0]?.node;
+    const price = firstVariant
+      ? `${firstVariant.price.currencyCode} ${firstVariant.price.amount}`
+      : 'N/A';
+    const compareAtPrice = firstVariant?.compareAtPrice
+      ? `${firstVariant.compareAtPrice.currencyCode} ${firstVariant.compareAtPrice.amount}`
+      : undefined;
+
     return {
       id: node.id,
       title: node.title,
       description: node.description,
       handle: node.handle,
+      price,
+      compareAtPrice,
       images: node.images.edges.map(({ node: img }) => ({
         id: img.id,
         url: img.url,
