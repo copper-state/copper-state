@@ -13,7 +13,7 @@ export default function FundraisingPage() {
         {/* Background Image */}
         <div className="absolute inset-0">
           <Image
-            src="/soccer_team"
+            src="/soccer_team.png"
             alt="Soccer team"
             fill
             className="object-cover"
