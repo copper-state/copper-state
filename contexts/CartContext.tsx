@@ -86,9 +86,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
         const newCart = await createResponse.json();
         currentCartId = newCart.id;
-        setCartId(currentCartId);
-        setCart(newCart);
-        localStorage.setItem(CART_ID_KEY, currentCartId);
+        if (currentCartId) {
+          setCartId(currentCartId);
+          setCart(newCart);
+          localStorage.setItem(CART_ID_KEY, currentCartId);
+        } else {
+          throw new Error('Cart ID not returned from server');
+        }
       } else {
         // Add to existing cart
         const addResponse = await fetch('/api/cart/add', {

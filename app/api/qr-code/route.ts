@@ -31,7 +31,8 @@ export async function GET(request: NextRequest) {
     const buffer = await generateQRCodeBuffer(qrUrl, width);
 
     // Return as PNG image
-    return new NextResponse(buffer, {
+    // Convert Buffer to Uint8Array for NextResponse compatibility
+    return new NextResponse(Uint8Array.from(buffer), {
       headers: {
         'Content-Type': 'image/png',
         'Content-Disposition': `inline; filename="qr-${teamId}${playerId ? `-${playerId}` : ''}.png"`,
