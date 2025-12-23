@@ -2,11 +2,15 @@ import { getProductByHandle, getProducts } from '@/lib/shopify';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingCart, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import type { ShopifyProduct } from '@/lib/shopify';
+import TeamTracker from '@/components/TeamTracker';
+import AddToCartButton from '@/components/AddToCartButton';
+import { Suspense } from 'react';
 
 interface ProductPageProps {
   params: Promise<{ handle: string }>;
+  searchParams: Promise<{ team?: string }>;
 }
 
 export async function generateStaticParams() {
@@ -20,7 +24,7 @@ export async function generateStaticParams() {
   }
 }
 
-export default async function ProductPage({ params }: ProductPageProps) {
+export default async function ProductPage({ params, searchParams }: ProductPageProps) {
   const { handle } = await params;
   let product: ShopifyProduct | null = null;
 
@@ -70,6 +74,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <div className="flex flex-col justify-center">
               <h1 className="text-4xl font-bold text-gray-900 mb-4">{product.title}</h1>
               
+              {/* Team Tracker - shows if team parameter is in URL */}
+              <Suspense fallback={null}>
+                <TeamTracker />
+              </Suspense>
+              
               <div className="mb-6">
                 <span className="text-3xl font-bold text-red-600">{price}</span>
                 {product.variants[0]?.compareAtPrice && (
@@ -105,16 +114,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               )}
 
               {/* Add to Cart Button */}
-              <button
-                className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-4 px-6 rounded-lg flex items-center justify-center gap-2 transition-colors"
-              >
-                <ShoppingCart className="w-5 h-5" />
-                Add to Cart
-              </button>
-
-              {!product.variants[0]?.availableForSale && (
-                <p className="text-red-600 mt-4 text-center">Currently out of stock</p>
-              )}
+              <AddToCartButton product={product} />
             </div>
           </div>
         </div>

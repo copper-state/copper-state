@@ -93,6 +93,14 @@ export default function Footer() {
                 <Mail className="w-6 h-6" />
               </a>
             </div>
+            <div className="mt-4 pt-4 border-t border-gray-800">
+              <Link 
+                href="/admin" 
+                className="text-gray-400 hover:text-yellow-500 transition-colors text-sm"
+              >
+                Admin
+              </Link>
+            </div>
           </div>
         </div>
 

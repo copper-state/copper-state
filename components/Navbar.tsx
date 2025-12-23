@@ -5,9 +5,12 @@ import Image from 'next/image';
 import { ShoppingCart, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCart } from '@/contexts/CartContext';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { getCartCount } = useCart();
+  const cartCount = getCartCount();
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -64,12 +67,17 @@ export default function Navbar() {
             >
               Contact
             </Link>
-            <button className="relative p-2 text-gray-700 hover:text-red-600 transition-colors">
+            <Link
+              href="/cart"
+              className="relative p-2 text-gray-700 hover:text-red-600 transition-colors"
+            >
               <ShoppingCart className="w-6 h-6" />
-              <span className="absolute top-0 right-0 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                0
-              </span>
-            </button>
+              {cartCount > 0 && (
+                <span className="absolute top-0 right-0 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {cartCount > 99 ? '99+' : cartCount}
+                </span>
+              )}
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -126,6 +134,19 @@ export default function Navbar() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contact
+              </Link>
+              <Link
+                href="/cart"
+                className="block py-2 text-gray-700 hover:text-red-600 transition-colors flex items-center gap-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <ShoppingCart className="w-5 h-5" />
+                Cart
+                {cartCount > 0 && (
+                  <span className="bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {cartCount > 99 ? '99+' : cartCount}
+                  </span>
+                )}
               </Link>
             </div>
           </motion.div>

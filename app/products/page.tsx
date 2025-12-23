@@ -1,8 +1,14 @@
 import ProductCard from '@/components/ProductCard';
 import { getProducts } from '@/lib/shopify';
 import type { ShopifyProduct } from '@/lib/shopify';
+import TeamTracker from '@/components/TeamTracker';
+import { Suspense } from 'react';
 
-export default async function ProductsPage() {
+interface ProductsPageProps {
+  searchParams: Promise<{ team?: string; player?: string }>;
+}
+
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   let products: ShopifyProduct[] = [];
   
   try {
@@ -56,6 +62,11 @@ export default async function ProductsPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Team Tracker - shows if team parameter is in URL */}
+        <Suspense fallback={null}>
+          <TeamTracker />
+        </Suspense>
+
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Our Products

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ShoppingCart } from 'lucide-react';
 import type { ShopifyProduct } from '@/lib/shopify';
@@ -11,19 +12,25 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const router = useRouter();
   const mainImage = product.images[0]?.url;
   const price = product.variants[0]?.price || 'N/A';
+
+  const handleCartClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    router.push(`/products/${product.handle}`);
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: 0 }}
       whileHover={{ y: -5 }}
       className="bg-white rounded-lg shadow-lg overflow-hidden group"
     >
-      <Link href={`/products/${product.handle}`}>
+      <Link href={`/products/${product.handle}`} className="block">
         <div className="relative h-64 w-full overflow-hidden bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
           {mainImage ? (
             <Image
@@ -44,22 +51,18 @@ export default function ProductCard({ product }: ProductCardProps) {
           <p className="text-gray-600 text-sm mb-4 line-clamp-2">
             {product.description || 'Premium quality product from Copper State Foods'}
           </p>
-          <div className="flex items-center justify-between">
-            <span className="text-2xl font-bold text-red-600">{price}</span>
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded-full transition-colors"
-              onClick={(e) => {
-                e.preventDefault();
-                // Add to cart logic here
-              }}
-            >
-              <ShoppingCart className="w-5 h-5" />
-            </motion.button>
-          </div>
         </div>
       </Link>
+      <div className="px-6 pb-6 flex items-center justify-between">
+        <span className="text-2xl font-bold text-red-600">{price}</span>
+        <button
+          onClick={handleCartClick}
+          className="bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded-full transition-colors inline-flex items-center justify-center"
+          aria-label="View product"
+        >
+          <ShoppingCart className="w-5 h-5" />
+        </button>
+      </div>
     </motion.div>
   );
 }

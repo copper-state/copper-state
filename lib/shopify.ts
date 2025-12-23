@@ -40,6 +40,58 @@ export interface ShopifyCollection {
   description?: string;
 }
 
+export interface CartLineItem {
+  id: string;
+  quantity: number;
+  merchandise: {
+    id: string;
+    title: string;
+    product: {
+      id: string;
+      title: string;
+      handle: string;
+      images: {
+        edges: Array<{
+          node: {
+            id: string;
+            url: string;
+            altText?: string;
+          };
+        }>;
+      };
+    };
+    price: {
+      amount: string;
+      currencyCode: string;
+    };
+  };
+  attributes: Array<{
+    key: string;
+    value: string;
+  }>;
+}
+
+export interface ShopifyCart {
+  id: string;
+  checkoutUrl: string;
+  totalQuantity: number;
+  cost: {
+    totalAmount: {
+      amount: string;
+      currencyCode: string;
+    };
+    subtotalAmount: {
+      amount: string;
+      currencyCode: string;
+    };
+  };
+  lines: {
+    edges: Array<{
+      node: CartLineItem;
+    }>;
+  };
+}
+
 // GraphQL query to fetch products
 const PRODUCTS_QUERY = `
   query getProducts($first: Int!) {
@@ -130,6 +182,315 @@ const COLLECTIONS_QUERY = `
           title
           handle
           description
+        }
+      }
+    }
+  }
+`;
+
+// GraphQL mutation to create a cart
+const CART_CREATE_MUTATION = `
+  mutation cartCreate($input: CartInput!) {
+    cartCreate(input: $input) {
+      cart {
+        id
+        checkoutUrl
+        totalQuantity
+        cost {
+          totalAmount {
+            amount
+            currencyCode
+          }
+          subtotalAmount {
+            amount
+            currencyCode
+          }
+        }
+        lines(first: 100) {
+          edges {
+            node {
+              id
+              quantity
+              merchandise {
+                ... on ProductVariant {
+                  id
+                  title
+                  price {
+                    amount
+                    currencyCode
+                  }
+                  product {
+                    id
+                    title
+                    handle
+                    images(first: 1) {
+                      edges {
+                        node {
+                          id
+                          url
+                          altText
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              attributes {
+                key
+                value
+              }
+            }
+          }
+        }
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+// GraphQL mutation to add items to cart
+const CART_LINES_ADD_MUTATION = `
+  mutation cartLinesAdd($cartId: ID!, $lines: [CartLineInput!]!) {
+    cartLinesAdd(cartId: $cartId, lines: $lines) {
+      cart {
+        id
+        checkoutUrl
+        totalQuantity
+        cost {
+          totalAmount {
+            amount
+            currencyCode
+          }
+          subtotalAmount {
+            amount
+            currencyCode
+          }
+        }
+        lines(first: 100) {
+          edges {
+            node {
+              id
+              quantity
+              merchandise {
+                ... on ProductVariant {
+                  id
+                  title
+                  price {
+                    amount
+                    currencyCode
+                  }
+                  product {
+                    id
+                    title
+                    handle
+                    images(first: 1) {
+                      edges {
+                        node {
+                          id
+                          url
+                          altText
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              attributes {
+                key
+                value
+              }
+            }
+          }
+        }
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+// GraphQL mutation to update cart lines
+const CART_LINES_UPDATE_MUTATION = `
+  mutation cartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
+    cartLinesUpdate(cartId: $cartId, lines: $lines) {
+      cart {
+        id
+        checkoutUrl
+        totalQuantity
+        cost {
+          totalAmount {
+            amount
+            currencyCode
+          }
+          subtotalAmount {
+            amount
+            currencyCode
+          }
+        }
+        lines(first: 100) {
+          edges {
+            node {
+              id
+              quantity
+              merchandise {
+                ... on ProductVariant {
+                  id
+                  title
+                  price {
+                    amount
+                    currencyCode
+                  }
+                  product {
+                    id
+                    title
+                    handle
+                    images(first: 1) {
+                      edges {
+                        node {
+                          id
+                          url
+                          altText
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              attributes {
+                key
+                value
+              }
+            }
+          }
+        }
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+// GraphQL mutation to remove cart lines
+const CART_LINES_REMOVE_MUTATION = `
+  mutation cartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
+    cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
+      cart {
+        id
+        checkoutUrl
+        totalQuantity
+        cost {
+          totalAmount {
+            amount
+            currencyCode
+          }
+          subtotalAmount {
+            amount
+            currencyCode
+          }
+        }
+        lines(first: 100) {
+          edges {
+            node {
+              id
+              quantity
+              merchandise {
+                ... on ProductVariant {
+                  id
+                  title
+                  price {
+                    amount
+                    currencyCode
+                  }
+                  product {
+                    id
+                    title
+                    handle
+                    images(first: 1) {
+                      edges {
+                        node {
+                          id
+                          url
+                          altText
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              attributes {
+                key
+                value
+              }
+            }
+          }
+        }
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+// GraphQL query to get cart
+const CART_QUERY = `
+  query getCart($id: ID!) {
+    cart(id: $id) {
+      id
+      checkoutUrl
+      totalQuantity
+      cost {
+        totalAmount {
+          amount
+          currencyCode
+        }
+        subtotalAmount {
+          amount
+          currencyCode
+        }
+      }
+      lines(first: 100) {
+        edges {
+          node {
+            id
+            quantity
+            merchandise {
+              ... on ProductVariant {
+                id
+                title
+                price {
+                  amount
+                  currencyCode
+                }
+                product {
+                  id
+                  title
+                  handle
+                  images(first: 1) {
+                    edges {
+                      node {
+                        id
+                        url
+                        altText
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            attributes {
+              key
+              value
+            }
+          }
         }
       }
     }
@@ -373,6 +734,141 @@ export async function getCollections(): Promise<ShopifyCollection[]> {
   } catch (error) {
     console.error('Error fetching collections:', error);
     return [];
+  }
+}
+
+// Cart API Functions
+
+export async function createCart(
+  lines?: Array<{ merchandiseId: string; quantity: number; attributes?: Array<{ key: string; value: string }> }>
+): Promise<ShopifyCart | null> {
+  try {
+    const data = await shopifyFetch<{
+      cartCreate: {
+        cart: ShopifyCart | null;
+        userErrors: Array<{ field: string[]; message: string }>;
+      };
+    }>({
+      query: CART_CREATE_MUTATION,
+      variables: {
+        input: lines ? { lines } : {},
+      },
+    });
+
+    if (data.cartCreate.userErrors.length > 0) {
+      console.error('Cart create errors:', data.cartCreate.userErrors);
+      throw new Error(data.cartCreate.userErrors.map((e) => e.message).join(', '));
+    }
+
+    return data.cartCreate.cart;
+  } catch (error) {
+    console.error('Error creating cart:', error);
+    throw error;
+  }
+}
+
+export async function addToCart(
+  cartId: string,
+  lines: Array<{ merchandiseId: string; quantity: number; attributes?: Array<{ key: string; value: string }> }>
+): Promise<ShopifyCart | null> {
+  try {
+    const data = await shopifyFetch<{
+      cartLinesAdd: {
+        cart: ShopifyCart | null;
+        userErrors: Array<{ field: string[]; message: string }>;
+      };
+    }>({
+      query: CART_LINES_ADD_MUTATION,
+      variables: {
+        cartId,
+        lines,
+      },
+    });
+
+    if (data.cartLinesAdd.userErrors.length > 0) {
+      console.error('Cart add errors:', data.cartLinesAdd.userErrors);
+      throw new Error(data.cartLinesAdd.userErrors.map((e) => e.message).join(', '));
+    }
+
+    return data.cartLinesAdd.cart;
+  } catch (error) {
+    console.error('Error adding to cart:', error);
+    throw error;
+  }
+}
+
+export async function updateCart(
+  cartId: string,
+  lines: Array<{ id: string; quantity: number }>
+): Promise<ShopifyCart | null> {
+  try {
+    const data = await shopifyFetch<{
+      cartLinesUpdate: {
+        cart: ShopifyCart | null;
+        userErrors: Array<{ field: string[]; message: string }>;
+      };
+    }>({
+      query: CART_LINES_UPDATE_MUTATION,
+      variables: {
+        cartId,
+        lines,
+      },
+    });
+
+    if (data.cartLinesUpdate.userErrors.length > 0) {
+      console.error('Cart update errors:', data.cartLinesUpdate.userErrors);
+      throw new Error(data.cartLinesUpdate.userErrors.map((e) => e.message).join(', '));
+    }
+
+    return data.cartLinesUpdate.cart;
+  } catch (error) {
+    console.error('Error updating cart:', error);
+    throw error;
+  }
+}
+
+export async function removeFromCart(cartId: string, lineIds: string[]): Promise<ShopifyCart | null> {
+  try {
+    const data = await shopifyFetch<{
+      cartLinesRemove: {
+        cart: ShopifyCart | null;
+        userErrors: Array<{ field: string[]; message: string }>;
+      };
+    }>({
+      query: CART_LINES_REMOVE_MUTATION,
+      variables: {
+        cartId,
+        lineIds,
+      },
+    });
+
+    if (data.cartLinesRemove.userErrors.length > 0) {
+      console.error('Cart remove errors:', data.cartLinesRemove.userErrors);
+      throw new Error(data.cartLinesRemove.userErrors.map((e) => e.message).join(', '));
+    }
+
+    return data.cartLinesRemove.cart;
+  } catch (error) {
+    console.error('Error removing from cart:', error);
+    throw error;
+  }
+}
+
+export async function getCart(cartId: string): Promise<ShopifyCart | null> {
+  try {
+    const data = await shopifyFetch<{
+      cart: ShopifyCart | null;
+    }>({
+      query: CART_QUERY,
+      variables: {
+        id: cartId,
+      },
+    });
+
+    return data.cart;
+  } catch (error) {
+    console.error('Error fetching cart:', error);
+    return null;
   }
 }
 
